@@ -1,0 +1,235 @@
+{
+  "name": "Advanced Chat AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi! I'm your advanced AI assistant. I can search the web, run calculations, call external APIs, and remember our conversation. How can I help you?",
+        "options": {
+          "subtitle": "Powered by GPT-4o",
+          "title": "AI Assistant"
+        }
+      },
+      "id": "351c794d-8d5a-4736-bf70-d98f21c148c4",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        16
+      ],
+      "webhookId": "a1b2c3d4-cafe-babe-dead-000000000001"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "maxIterations": 10,
+          "returnIntermediateSteps": false,
+          "passthroughBinaryImages": true
+        }
+      },
+      "id": "192fa1bd-d686-43d6-b739-abecfbe8023b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -208,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "maxTokens": 2000,
+          "temperature": 0.7,
+          "timeout": 60000,
+          "maxRetries": 3
+        }
+      },
+      "id": "bf7bf551-7867-43a1-b88b-354b95e28099",
+      "name": "OpenAI GPT-4o",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        224
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "YTaFgMmsHdKsfy3h",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 16000
+      },
+      "id": "4be4624a-45b4-42d9-990d-fe04ba141d93",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -208,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://serpapi.com/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "id": "df744684-c1d3-4e0a-8573-7b8599c29226",
+      "name": "Web Search (SerpAPI)",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -48,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "name": "calculator",
+        "description": "Useful for performing mathematical calculations, evaluating expressions, working with numbers, percentages, and arithmetic. Input should be a valid JavaScript math expression as a string. Example inputs: '2 + 2', 'Math.sqrt(144)', '(1500 * 0.07).toFixed(2)'"
+      },
+      "id": "d5ae85fe-0978-49a7-93d4-277cf43cd480",
+      "name": "Calculator Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        112,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $fromAI('url', 'The full HTTPS URL to fetch') }}"
+      },
+      "id": "6a7b7076-e427-42b9-a154-e6931c84f60e",
+      "name": "HTTP Fetch Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        272,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "name": "get_current_time",
+        "description": "Returns the current date and time in the user's context. Use this whenever the user asks what time or date it is."
+      },
+      "id": "9dd564c6-cb89-474b-85ae-7abc914fe3eb",
+      "name": "Current Time Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        224
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4o": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Search (SerpAPI)": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Fetch Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Current Time Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "22d2a4f0-0746-4090-b3c2-1b1b7c0101cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "70f8ac6f9d050634e5be2e7ed20b8d4998fc2c80ea9d16daf6f7ce4de4e7cb0f"
+  },
+  "id": "AhpDC8ehqwaGnR0X",
+  "tags": []
+}
